@@ -28,6 +28,12 @@
                     @if($user->is_admin)
                         <span class="badge" style="background:#dbeafe;color:#1e3a8a"><i class="bi bi-shield-fill-check me-1"></i>Admin</span>
                     @endif
+                    @if($user->role && $user->role !== 'user')
+                        <span class="badge" style="background:#ede9fe;color:#5b21b6"><i class="bi bi-star-fill me-1"></i>{{ ucfirst($user->role) }}</span>
+                    @endif
+                    @if($user->banned_at)
+                        <span class="badge" style="background:#fee2e2;color:#991b1b"><i class="bi bi-slash-circle me-1"></i>Banned</span>
+                    @endif
                 </div>
             </div>
             <div class="card-footer bg-white border-top-0">
@@ -36,6 +42,8 @@
                     <dd class="col-7 text-truncate">{{ $user->email }}</dd>
                     <dt class="col-5 text-muted">Level</dt>
                     <dd class="col-7">{{ $user->level }}</dd>
+                    <dt class="col-5 text-muted">Role</dt>
+                    <dd class="col-7 text-capitalize">{{ $user->role ?? 'user' }}</dd>
                     <dt class="col-5 text-muted">Streak</dt>
                     <dd class="col-7">{{ $user->streak }} days</dd>
                     <dt class="col-5 text-muted">Messaging</dt>
@@ -61,6 +69,28 @@
                         <i class="bi bi-shield me-1"></i>{{ $user->is_admin ? 'Remove Admin' : 'Make Admin' }}
                     </button>
                 </form>
+                {{-- Role --}}
+                <form action="{{ route('admin.users.updateRole', $user) }}" method="POST" class="d-flex gap-2">
+                    @csrf @method('PATCH')
+                    <select name="role" class="form-select form-select-sm">
+                        <option value="user"   {{ ($user->role ?? 'user') === 'user'   ? 'selected' : '' }}>User</option>
+                        <option value="mentor" {{ ($user->role ?? 'user') === 'mentor' ? 'selected' : '' }}>Mentor</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-secondary flex-shrink-0">Set Role</button>
+                </form>
+                {{-- Ban / Unban --}}
+                @if($user->banned_at)
+                <form action="{{ route('admin.moderation.unban', $user) }}" method="POST">
+                    @csrf @method('PATCH')
+                    <button class="btn w-100 btn-sm btn-outline-success">
+                        <i class="bi bi-check-circle me-1"></i>Unban User
+                    </button>
+                </form>
+                @else
+                <button class="btn w-100 btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#banModal">
+                    <i class="bi bi-slash-circle me-1"></i>Ban User
+                </button>
+                @endif
                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
                       onsubmit="return confirm('Delete this user permanently?')">
                     @csrf @method('DELETE')
@@ -132,6 +162,30 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+{{-- Ban Modal --}}
+<div class="modal fade" id="banModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold">Ban {{ $user->name }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.moderation.ban', $user) }}" method="POST">
+                @csrf
+                <div class="modal-body pt-2">
+                    <label class="form-label small fw-semibold">Reason for ban</label>
+                    <textarea name="reason" class="form-control form-control-sm" rows="3" required
+                              placeholder="Describe the reason…"></textarea>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-danger">Ban User</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

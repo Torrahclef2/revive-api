@@ -22,7 +22,10 @@ class User extends Authenticatable
         'headline',
         'is_verified',
         'is_admin',
+        'role',
         'messaging_privacy',
+        'banned_at',
+        'ban_reason',
         'streak',
         'level',
     ];
@@ -38,6 +41,7 @@ class User extends Authenticatable
             'password'    => 'hashed',
             'is_verified' => 'boolean',
             'is_admin'    => 'boolean',
+            'banned_at'   => 'datetime',
         ];
     }
 

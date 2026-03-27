@@ -64,4 +64,11 @@ class UserAdminController extends Controller
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'User deleted.');
     }
+
+    public function updateRole(Request $request, User $user)
+    {
+        $request->validate(['role' => 'required|in:user,mentor']);
+        $user->update(['role' => $request->role]);
+        return back()->with('success', "Role updated to {$request->role}.");
+    }
 }

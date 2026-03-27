@@ -42,4 +42,21 @@ class SessionAdminController extends Controller
         $session->delete();
         return redirect()->route('admin.sessions.index')->with('success', 'Session deleted.');
     }
+
+    public function monitor()
+    {
+        $liveSessions = Session::with(['host', 'activeParticipants.user'])
+            ->where('status', 'active')
+            ->orderByDesc('started_at')
+            ->get();
+
+        $scheduledSessions = Session::with('host')
+            ->where('status', 'waiting')
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '>=', now())
+            ->orderBy('scheduled_at')
+            ->get();
+
+        return view('admin.sessions.monitor', compact('liveSessions', 'scheduledSessions'));
+    }
 }

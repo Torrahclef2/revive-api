@@ -137,11 +137,26 @@
         <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
             <i class="bi bi-people-fill"></i> Users
         </a>
-        <a href="{{ route('admin.sessions.index') }}" class="nav-link {{ request()->routeIs('admin.sessions.*') ? 'active' : '' }}">
-            <i class="bi bi-broadcast-pin"></i> Sessions
+        <a href="{{ route('admin.sessions.monitor') }}" class="nav-link {{ request()->routeIs('admin.sessions.monitor') ? 'active' : '' }}">
+            <i class="bi bi-broadcast-pin"></i> Live Monitor
+        </a>
+        <a href="{{ route('admin.sessions.index') }}" class="nav-link {{ request()->routeIs('admin.sessions.index') || request()->routeIs('admin.sessions.show') ? 'active' : '' }}">
+            <i class="bi bi-collection-play"></i> All Sessions
         </a>
         <a href="{{ route('admin.groups.index') }}" class="nav-link {{ request()->routeIs('admin.groups.*') ? 'active' : '' }}">
             <i class="bi bi-collection-fill"></i> Groups
+        </a>
+
+        <div class="nav-label">Tools</div>
+        <a href="{{ route('admin.moderation.index') }}" class="nav-link {{ request()->routeIs('admin.moderation.*') ? 'active' : '' }}">
+            <i class="bi bi-shield-exclamation"></i> Moderation
+            @php $pendingReports = \App\Models\Report::where('status','pending')->count(); @endphp
+            @if($pendingReports > 0)
+                <span class="badge ms-auto" style="background:#fee2e2;color:#991b1b;font-size:.65rem">{{ $pendingReports }}</span>
+            @endif
+        </a>
+        <a href="{{ route('admin.analytics.index') }}" class="nav-link {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+            <i class="bi bi-graph-up-arrow"></i> Analytics
         </a>
     </nav>
 
