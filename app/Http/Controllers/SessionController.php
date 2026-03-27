@@ -6,6 +6,7 @@ use App\Http\Requests\CreateSessionRequest;
 use App\Http\Requests\JoinSessionRequest;
 use App\Models\Session;
 use App\Models\SessionParticipant;
+use App\Notifications\SessionScheduledNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,25 +21,35 @@ class SessionController extends Controller
      * Create Session
      *
      * Create a new prayer or Bible study session. The authenticated user becomes the host.
+     * Supply `scheduled_at` to schedule a future session — group members will receive a
+     * notification immediately, and another reminder 15 minutes before it starts.
      *
      * @bodyParam type string required Session type. Enum: `prayer`, `bible_study`. Example: prayer
+     * @bodyParam description string optional Details about the session (topic, agenda, etc.). Example: We will be studying Psalm 23 together.
      * @bodyParam max_participants integer required Max users allowed (2–10). Example: 6
      * @bodyParam duration integer required Session length in minutes (10–120). Example: 30
      * @bodyParam privacy string required Visibility setting. Enum: `public`, `anonymous`, `group`. Example: public
+     * @bodyParam scheduled_at string optional ISO 8601 future date/time for the session. Must be at least 5 minutes from now. Example: 2026-03-28T18:00:00Z
      * @bodyParam meta array optional Key/value metadata (e.g. prayer request or Bible topic).
      * @bodyParam meta[].key string required Meta key. Example: prayer_request
      * @bodyParam meta[].value string required Meta value. Example: Healing for my family
-     * @response 201 scenario="Created" {"session":{"id":1,"type":"prayer","status":"waiting","privacy":"public","max_participants":6,"duration":30},"channel_name":"session_1"}
+     * @response 201 scenario="Scheduled" {"session":{"id":1,"type":"prayer","status":"waiting","description":"Psalm 23 study","scheduled_at":"2026-03-28T18:00:00Z","privacy":"public","max_participants":6,"duration":30},"channel_name":"session_1"}
+     * @response 201 scenario="Immediate" {"session":{"id":2,"type":"prayer","status":"waiting","scheduled_at":null},"channel_name":"session_2"}
      */
     public function createSession(CreateSessionRequest $request): JsonResponse
     {
+        $isScheduled = $request->filled('scheduled_at');
+
         $session = Session::create([
             'type'             => $request->type,
+            'description'      => $request->description,
             'host_id'          => Auth::id(),
             'max_participants' => $request->max_participants,
             'duration'         => $request->duration,
             'privacy'          => $request->privacy,
+            // Scheduled sessions sit in "waiting" until their time; immediate ones too
             'status'           => 'waiting',
+            'scheduled_at'     => $isScheduled ? $request->scheduled_at : null,
         ]);
 
         // Persist any supplementary meta data (prayer_request, bible_topic, etc.)
@@ -61,6 +72,21 @@ class SessionController extends Controller
             'role'       => 'host',
             'joined_at'  => now(),
         ]);
+
+        // Notify all members of the host's groups about the newly scheduled session
+        if ($isScheduled) {
+            $groupUserIds = Auth::user()
+                ->groups()
+                ->with('users:id')
+                ->get()
+                ->flatMap(fn ($group) => $group->users->pluck('id'))
+                ->unique()
+                ->reject(fn ($id) => $id === Auth::id());
+
+            \App\Models\User::whereIn('id', $groupUserIds)
+                ->get()
+                ->each(fn ($member) => $member->notify(new SessionScheduledNotification($session)));
+        }
 
         return response()->json([
             'session'      => $session->load('meta'),

@@ -19,7 +19,10 @@ endpoints:
       subgroup: ''
       subgroupDescription: ''
       title: 'Create Session'
-      description: 'Create a new prayer or Bible study session. The authenticated user becomes the host.'
+      description: |-
+        Create a new prayer or Bible study session. The authenticated user becomes the host.
+        Supply `scheduled_at` to schedule a future session — group members will receive a
+        notification immediately, and another reminder 15 minutes before it starts.
       authenticated: true
       deprecated: false
     headers:
@@ -43,6 +46,17 @@ endpoints:
           - '`bible_study`'
         exampleWasSpecified: true
         nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'optional Details about the session (topic, agenda, etc.).'
+        required: false
+        example: 'We will be studying Psalm 23 together.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
         deprecated: false
       max_participants:
         custom: []
@@ -80,6 +94,17 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
+      scheduled_at:
+        custom: []
+        name: scheduled_at
+        description: 'optional ISO 8601 future date/time for the session. Must be at least 5 minutes from now.'
+        required: false
+        example: '2026-03-28T18:00:00Z'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
       meta:
         custom: []
         name: meta
@@ -116,9 +141,11 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       type: prayer
+      description: 'We will be studying Psalm 23 together.'
       max_participants: 6
       duration: 30
       privacy: public
+      scheduled_at: '2026-03-28T18:00:00Z'
       meta:
         - consequatur
     fileParameters: []
@@ -126,9 +153,15 @@ endpoints:
       -
         custom: []
         status: 201
-        content: '{"session":{"id":1,"type":"prayer","status":"waiting","privacy":"public","max_participants":6,"duration":30},"channel_name":"session_1"}'
+        content: '{"session":{"id":1,"type":"prayer","status":"waiting","description":"Psalm 23 study","scheduled_at":"2026-03-28T18:00:00Z","privacy":"public","max_participants":6,"duration":30},"channel_name":"session_1"}'
         headers: []
-        description: Created
+        description: Scheduled
+      -
+        custom: []
+        status: 201
+        content: '{"session":{"id":2,"type":"prayer","status":"waiting","scheduled_at":null},"channel_name":"session_2"}'
+        headers: []
+        description: Immediate
     responseFields: []
     auth:
       - headers

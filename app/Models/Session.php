@@ -13,6 +13,7 @@ class Session extends Model
 
     protected $fillable = [
         'type',
+        'description',
         'host_id',
         'max_participants',
         'duration',
@@ -20,11 +21,15 @@ class Session extends Model
         'status',
         'started_at',
         'ended_at',
+        'scheduled_at',
+        'reminder_sent',
     ];
 
     protected $casts = [
-        'started_at' => 'datetime',
-        'ended_at'   => 'datetime',
+        'started_at'    => 'datetime',
+        'ended_at'      => 'datetime',
+        'scheduled_at'  => 'datetime',
+        'reminder_sent' => 'boolean',
     ];
 
     public function host(): BelongsTo
