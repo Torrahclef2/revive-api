@@ -20,11 +20,13 @@ class UserController extends Controller
 
         return response()->json([
             'user' => [
-                'id'     => $user->id,
-                'name'   => $user->name,
-                'avatar' => $user->avatar,
-                'level'  => $user->level,
-                'streak' => $user->streak,
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'username' => $user->username,
+                'avatar'   => $user->avatar,
+                'headline' => $user->headline,
+                'level'    => $user->level,
+                'streak'   => $user->streak,
             ],
             'stats' => [
                 'sessions_joined' => $sessionsJoined,
