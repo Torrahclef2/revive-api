@@ -20,6 +20,8 @@ class User extends Authenticatable
         'password',
         'avatar',
         'headline',
+        'is_verified',
+        'messaging_privacy',
         'streak',
         'level',
     ];
@@ -32,7 +34,8 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password' => 'hashed',
+            'password'    => 'hashed',
+            'is_verified' => 'boolean',
         ];
     }
 
@@ -53,6 +56,13 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Group::class, 'group_members', 'user_id', 'group_id')
             ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    // Conversations this user is part of
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_participants')
             ->withTimestamps();
     }
 }

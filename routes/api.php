@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -34,5 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/groups/{id}/join', [GroupController::class, 'joinGroup']);
 
     // User
-    Route::get('/user/progress', [UserController::class, 'getProgress']);
+    Route::get('/user/progress',  [UserController::class, 'getProgress']);
+    Route::patch('/user/settings', [UserController::class, 'updateSettings']);
+
+    // Messaging
+    Route::post('/conversations',                             [MessageController::class, 'startConversation']);
+    Route::get('/conversations',                              [MessageController::class, 'getConversations']);
+    Route::get('/conversations/{id}/messages',               [MessageController::class, 'getMessages']);
+    Route::post('/conversations/{id}/messages',              [MessageController::class, 'sendMessage']);
 });
