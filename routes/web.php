@@ -7,7 +7,8 @@ use App\Http\Controllers\Admin\SessionAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('admin.dashboard'));
+Route::get('/', fn () => redirect()->route('admin.login'));
+Route::get('/admin', fn () => redirect()->route('admin.login'));
 
 // Admin auth (guest only)
 Route::middleware('guest')->prefix('admin')->name('admin.')->group(function () {
