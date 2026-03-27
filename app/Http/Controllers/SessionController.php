@@ -28,13 +28,15 @@ class SessionController extends Controller
         ]);
 
         // Persist any supplementary meta data (prayer_request, bible_topic, etc.)
+        // Uses a single bulk insert instead of one query per item.
         if ($request->filled('meta')) {
-            foreach ($request->meta as $item) {
-                $session->meta()->create([
-                    'key'   => $item['key'],
-                    'value' => $item['value'],
-                ]);
-            }
+            $session->meta()->insert(
+                collect($request->meta)->map(fn ($item) => [
+                    'session_id' => $session->id,
+                    'key'        => $item['key'],
+                    'value'      => $item['value'],
+                ])->all()
+            );
         }
 
         // Register the creator immediately as the host participant
@@ -81,16 +83,16 @@ class SessionController extends Controller
             return response()->json(['message' => 'This session has already ended.'], 422);
         }
 
-        if ($session->activeParticipants()->count() >= $session->max_participants) {
+        // Single query: get total active count and whether the current user is already in.
+        $stats = $session->activeParticipants()
+            ->selectRaw('COUNT(*) as total, SUM(user_id = ?) as is_me', [Auth::id()])
+            ->first();
+
+        if ($stats->total >= $session->max_participants) {
             return response()->json(['message' => 'Session is full.'], 422);
         }
 
-        // Guard against the same user joining twice in the same session
-        $alreadyActive = $session->activeParticipants()
-            ->where('user_id', Auth::id())
-            ->exists();
-
-        if ($alreadyActive) {
+        if ((int) $stats->is_me > 0) {
             return response()->json(['message' => 'You are already in this session.'], 422);
         }
 
