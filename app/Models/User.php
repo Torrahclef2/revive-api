@@ -28,6 +28,9 @@ class User extends Authenticatable
         'ban_reason',
         'streak',
         'level',
+        'reputation_score',
+        'is_banned',
+        'banned_until',
     ];
 
     protected $hidden = [
@@ -38,10 +41,13 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password'    => 'hashed',
-            'is_verified' => 'boolean',
-            'is_admin'    => 'boolean',
-            'banned_at'   => 'datetime',
+            'password'         => 'hashed',
+            'is_verified'      => 'boolean',
+            'is_admin'         => 'boolean',
+            'banned_at'        => 'datetime',
+            'is_banned'        => 'boolean',
+            'banned_until'     => 'datetime',
+            'reputation_score' => 'integer',
         ];
     }
 

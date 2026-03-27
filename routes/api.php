@@ -6,6 +6,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\SessionModerationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,12 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckBanned::class])->gr
     Route::get('/sessions/live',        [SessionController::class, 'getLiveSessions']);
     Route::post('/sessions/{id}/join',  [SessionController::class, 'joinSession']);
     Route::post('/sessions/{id}/leave', [SessionController::class, 'leaveSession']);
-    Route::post('/sessions/{id}/end',   [SessionController::class, 'endSession']);
+
+    // Session moderation (host-only: mute/kick/end) + in-session reports
+    Route::post('/sessions/{session}/mute',   [SessionModerationController::class, 'mute']);
+    Route::post('/sessions/{session}/kick',   [SessionModerationController::class, 'kick']);
+    Route::post('/sessions/{session}/end',    [SessionModerationController::class, 'end']);
+    Route::post('/sessions/{session}/report', [SessionModerationController::class, 'report']);
 
     // Groups
     Route::post('/groups',          [GroupController::class, 'createGroup']);

@@ -16,10 +16,12 @@ class Report extends Model
         'status',
         'reviewed_by',
         'reviewed_at',
+        'auto_moderated',
     ];
 
     protected $casts = [
-        'reviewed_at' => 'datetime',
+        'reviewed_at'    => 'datetime',
+        'auto_moderated' => 'boolean',
     ];
 
     public function reporter(): BelongsTo

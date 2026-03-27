@@ -17,11 +17,19 @@ class SessionParticipant extends Model
         'role',
         'joined_at',
         'left_at',
+        'is_muted',
+        'is_removed',
+        'muted_at',
+        'removed_at',
     ];
 
     protected $casts = [
-        'joined_at' => 'datetime',
-        'left_at'   => 'datetime',
+        'joined_at'  => 'datetime',
+        'left_at'    => 'datetime',
+        'muted_at'   => 'datetime',
+        'removed_at' => 'datetime',
+        'is_muted'   => 'boolean',
+        'is_removed' => 'boolean',
     ];
 
     public function session(): BelongsTo
