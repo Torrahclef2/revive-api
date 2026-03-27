@@ -15,7 +15,7 @@ class UpdateSettingsRequest extends FormRequest
     {
         return [
             'name'              => 'sometimes|string|max:100',
-            'username'          => 'sometimes|string|max:50|alpha_dash|unique:users,username,' . $this->user()->id,
+            'username'          => 'sometimes|string|max:50|alpha_dash|unique:users,username,' . ($this->user()?->id ?? 'NULL'),
             'headline'          => 'sometimes|nullable|string|max:160',
             'avatar'            => 'sometimes|nullable|string|max:500',
             // Controls who can send this user a direct message

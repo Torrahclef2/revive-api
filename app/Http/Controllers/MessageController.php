@@ -9,16 +9,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @group Messaging
+ *
+ * Direct messaging between users, with privacy enforcement.
+ */
 class MessageController extends Controller
 {
     /**
-     * Start a direct-message conversation with another user, or return the
-     * existing one if it already exists between the two users.
+     * Start Conversation
      *
-     * Enforces the recipient's messaging_privacy setting:
-     *   - disabled      → no one can message them
-     *   - verified_only → sender must be verified
-     *   - everyone      → always allowed
+     * Start a direct-message conversation with another user.
+     * Returns the existing conversation if one already exists.
+     * Respects the recipient's `messaging_privacy` setting.
+     *
+     * @bodyParam recipient_id integer required The ID of the user to message. Example: 2
+     * @response 201 scenario="Created" {"conversation":{"id":1,"participants":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]}}
+     * @response 200 scenario="Existing conversation returned" {"conversation":{"id":1}}
+     * @response 403 scenario="Messaging disabled" {"message":"This user has disabled messaging."}
+     * @response 403 scenario="Unverified sender" {"message":"This user only accepts messages from verified users."}
      */
     public function startConversation(Request $request): JsonResponse
     {
@@ -65,8 +74,11 @@ class MessageController extends Controller
     }
 
     /**
-     * List all conversations the authenticated user belongs to,
-     * with the latest message preview included.
+     * List Conversations
+     *
+     * Return all conversations the authenticated user is part of, ordered by most recent activity.
+     *
+     * @response 200 scenario="Success" {"conversations":[{"id":1,"latest_message":{"body":"Hello!","created_at":"2026-03-27T10:00:00Z"},"participants":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]}]}
      */
     public function getConversations(): JsonResponse
     {
@@ -83,8 +95,13 @@ class MessageController extends Controller
     }
 
     /**
-     * Fetch all messages for a conversation the authenticated user is part of.
-     * Marks any unread messages (sent by others) as read.
+     * Get Messages
+     *
+     * Fetch all messages in a conversation. Unread messages from other participants are marked as read.
+     *
+     * @urlParam id integer required The conversation ID. Example: 1
+     * @response 200 scenario="Success" {"messages":[{"id":1,"body":"Hello!","read_at":null,"sender":{"id":2,"name":"Bob"}}]}
+     * @response 404 scenario="Not found" {"message":"Conversation not found."}
      */
     public function getMessages(int $conversationId): JsonResponse
     {
@@ -108,7 +125,14 @@ class MessageController extends Controller
     }
 
     /**
+     * Send Message
+     *
      * Send a message in an existing conversation.
+     *
+     * @urlParam id integer required The conversation ID. Example: 1
+     * @bodyParam body string required The message content (max 2000 chars). Example: God bless you!
+     * @response 201 scenario="Sent" {"message":{"id":5,"body":"God bless you!","created_at":"2026-03-27T10:05:00Z","sender":{"id":1,"name":"Alice"}}}
+     * @response 404 scenario="Not found" {"message":"Conversation not found."}
      */
     public function sendMessage(Request $request, int $conversationId): JsonResponse
     {

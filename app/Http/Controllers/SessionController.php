@@ -9,12 +9,26 @@ use App\Models\SessionParticipant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @group Sessions
+ *
+ * Create and manage real-time prayer and Bible study sessions.
+ */
 class SessionController extends Controller
 {
     /**
-     * Create a new session.
-     * Sets status to "waiting" and records the host as the first participant.
-     * Accepts an optional meta array for prayer requests or bible topics.
+     * Create Session
+     *
+     * Create a new prayer or Bible study session. The authenticated user becomes the host.
+     *
+     * @bodyParam type string required Session type. Enum: `prayer`, `bible_study`. Example: prayer
+     * @bodyParam max_participants integer required Max users allowed (2–10). Example: 6
+     * @bodyParam duration integer required Session length in minutes (10–120). Example: 30
+     * @bodyParam privacy string required Visibility setting. Enum: `public`, `anonymous`, `group`. Example: public
+     * @bodyParam meta array optional Key/value metadata (e.g. prayer request or Bible topic).
+     * @bodyParam meta[].key string required Meta key. Example: prayer_request
+     * @bodyParam meta[].value string required Meta value. Example: Healing for my family
+     * @response 201 scenario="Created" {"session":{"id":1,"type":"prayer","status":"waiting","privacy":"public","max_participants":6,"duration":30},"channel_name":"session_1"}
      */
     public function createSession(CreateSessionRequest $request): JsonResponse
     {
@@ -55,7 +69,11 @@ class SessionController extends Controller
     }
 
     /**
-     * Return all sessions that are currently waiting or live.
+     * List Live Sessions
+     *
+     * Return all sessions currently in `waiting` or `live` status, with participant counts.
+     *
+     * @response 200 scenario="Success" {"sessions":[{"id":1,"type":"prayer","status":"waiting","privacy":"public","active_participants_count":2,"host":{"id":1,"name":"John","avatar":null}}]}
      */
     public function getLiveSessions(): JsonResponse
     {
@@ -68,12 +86,17 @@ class SessionController extends Controller
     }
 
     /**
-     * Join a session.
+     * Join Session
      *
-     * - Prevents joining ended or full sessions.
-     * - Generates an anonymous alias (e.g. "Brother_4829") if none is provided
-     *   and the user has no display name set.
-     * - Returns the alias, channel name, and a placeholder RTC token.
+     * Join an active session. An alias is auto-generated if none is provided.
+     * Returns a channel name for RTC connection.
+     *
+     * @urlParam id integer required The session ID. Example: 1
+     * @bodyParam alias string optional Custom display name inside the session. Example: Brother_77
+     * @response 200 scenario="Joined" {"alias":"Brother_77","channel_name":"session_1","rtc_token":null}
+     * @response 422 scenario="Session full" {"message":"Session is full."}
+     * @response 422 scenario="Already joined" {"message":"You are already in this session."}
+     * @response 422 scenario="Session ended" {"message":"This session has already ended."}
      */
     public function joinSession(JoinSessionRequest $request, int $id): JsonResponse
     {
@@ -115,7 +138,13 @@ class SessionController extends Controller
     }
 
     /**
+     * Leave Session
+     *
      * Mark the authenticated user as having left the session.
+     *
+     * @urlParam id integer required The session ID. Example: 1
+     * @response 200 scenario="Left" {"message":"You have left the session."}
+     * @response 422 scenario="Not a participant" {"message":"You are not an active participant in this session."}
      */
     public function leaveSession(int $id): JsonResponse
     {
@@ -134,7 +163,14 @@ class SessionController extends Controller
     }
 
     /**
-     * End a session. Only the host may perform this action.
+     * End Session
+     *
+     * End a session permanently. Only the host may perform this action.
+     *
+     * @urlParam id integer required The session ID. Example: 1
+     * @response 200 scenario="Ended" {"message":"Session ended successfully.","session":{"id":1,"status":"ended","ended_at":"2026-03-27T10:00:00Z"}}
+     * @response 403 scenario="Not the host" {"message":"Only the host can end this session."}
+     * @response 422 scenario="Already ended" {"message":"Session is already ended."}
      */
     public function endSession(int $id): JsonResponse
     {

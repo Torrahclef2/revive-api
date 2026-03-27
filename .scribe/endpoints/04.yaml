@@ -1,0 +1,258 @@
+name: Messaging
+description: |-
+
+  Direct messaging between users, with privacy enforcement.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/conversations
+    metadata:
+      custom: []
+      groupName: Messaging
+      groupDescription: |-
+
+        Direct messaging between users, with privacy enforcement.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Start Conversation'
+      description: |-
+        Start a direct-message conversation with another user.
+        Returns the existing conversation if one already exists.
+        Respects the recipient's `messaging_privacy` setting.
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_BEARER_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      recipient_id:
+        custom: []
+        name: recipient_id
+        description: 'The ID of the user to message.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      recipient_id: 2
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"conversation":{"id":1}}'
+        headers: []
+        description: 'Existing conversation returned'
+      -
+        custom: []
+        status: 201
+        content: '{"conversation":{"id":1,"participants":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]}}'
+        headers: []
+        description: Created
+      -
+        custom: []
+        status: 403
+        content: '{"message":"This user has disabled messaging."}'
+        headers: []
+        description: 'Messaging disabled'
+      -
+        custom: []
+        status: 403
+        content: '{"message":"This user only accepts messages from verified users."}'
+        headers: []
+        description: 'Unverified sender'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/conversations
+    metadata:
+      custom: []
+      groupName: Messaging
+      groupDescription: |-
+
+        Direct messaging between users, with privacy enforcement.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'List Conversations'
+      description: 'Return all conversations the authenticated user is part of, ordered by most recent activity.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_BEARER_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"conversations":[{"id":1,"latest_message":{"body":"Hello!","created_at":"2026-03-27T10:00:00Z"},"participants":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]}]}'
+        headers: []
+        description: Success
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/conversations/{id}/messages'
+    metadata:
+      custom: []
+      groupName: Messaging
+      groupDescription: |-
+
+        Direct messaging between users, with privacy enforcement.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Messages'
+      description: 'Fetch all messages in a conversation. Unread messages from other participants are marked as read.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_BEARER_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The conversation ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"messages":[{"id":1,"body":"Hello!","read_at":null,"sender":{"id":2,"name":"Bob"}}]}'
+        headers: []
+        description: Success
+      -
+        custom: []
+        status: 404
+        content: '{"message":"Conversation not found."}'
+        headers: []
+        description: 'Not found'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/conversations/{id}/messages'
+    metadata:
+      custom: []
+      groupName: Messaging
+      groupDescription: |-
+
+        Direct messaging between users, with privacy enforcement.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Send Message'
+      description: 'Send a message in an existing conversation.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_BEARER_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The conversation ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      body:
+        custom: []
+        name: body
+        description: 'The message content (max 2000 chars).'
+        required: true
+        example: 'God bless you!'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      body: 'God bless you!'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: '{"message":{"id":5,"body":"God bless you!","created_at":"2026-03-27T10:05:00Z","sender":{"id":1,"name":"Alice"}}}'
+        headers: []
+        description: Sent
+      -
+        custom: []
+        status: 404
+        content: '{"message":"Conversation not found."}'
+        headers: []
+        description: 'Not found'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

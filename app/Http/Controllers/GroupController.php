@@ -8,10 +8,20 @@ use App\Models\GroupMember;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @group Groups
+ *
+ * Create and manage prayer/study groups.
+ */
 class GroupController extends Controller
 {
     /**
-     * Create a new group and register the creator as its owner.
+     * Create Group
+     *
+     * Create a new group. The authenticated user becomes the owner.
+     *
+     * @bodyParam name string required The group name. Example: Morning Prayers
+     * @response 201 scenario="Created" {"group":{"id":1,"name":"Morning Prayers","owner_id":1}}
      */
     public function createGroup(CreateGroupRequest $request): JsonResponse
     {
@@ -32,7 +42,13 @@ class GroupController extends Controller
     }
 
     /**
-     * Join an existing group as a regular member.
+     * Join Group
+     *
+     * Join an existing group as a member.
+     *
+     * @urlParam id integer required The group ID. Example: 1
+     * @response 200 scenario="Joined" {"message":"Joined group successfully.","group":{"id":1,"name":"Morning Prayers"}}
+     * @response 422 scenario="Already a member" {"message":"You are already a member of this group."}
      */
     public function joinGroup(int $id): JsonResponse
     {
@@ -59,7 +75,11 @@ class GroupController extends Controller
     }
 
     /**
-     * Return all groups the authenticated user belongs to.
+     * My Groups
+     *
+     * Return all groups the authenticated user belongs to, with member counts.
+     *
+     * @response 200 scenario="Success" {"groups":[{"id":1,"name":"Morning Prayers","members_count":5}]}
      */
     public function getUserGroups(): JsonResponse
     {

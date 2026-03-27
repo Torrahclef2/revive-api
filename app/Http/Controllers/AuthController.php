@@ -9,10 +9,21 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * @group Authentication
+ *
+ * Endpoints for registering, logging in, and guest access.
+ */
 class AuthController extends Controller
 {
     /**
-     * Register a new user and return an auth token.
+     * Register
+     *
+     * Create a new user account and receive an auth token.
+     *
+     * @unauthenticated
+     * @response 201 scenario="Success" {"user":{"id":1,"name":"John Doe","username":"johndoe","email":"john@example.com","avatar":null,"headline":null,"level":"Disciple","streak":0},"token":"1|abc123"}
+     * @response 422 scenario="Validation error" {"message":"The email has already been taken.","errors":{"email":["The email has already been taken."]}}
      */
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -32,8 +43,15 @@ class AuthController extends Controller
     }
 
     /**
-     * Authenticate an existing user and return an auth token.
-     * Accepts either an email address or a username in the "login" field.
+     * Login
+     *
+     * Authenticate with an email address or username and receive an auth token.
+     *
+     * @unauthenticated
+     * @bodyParam login string required The user's email address or username. Example: johndoe
+     * @bodyParam password string required The user's password. Example: secret123
+     * @response 200 scenario="Success" {"user":{"id":1,"name":"John Doe","username":"johndoe"},"token":"1|abc123"}
+     * @response 401 scenario="Invalid credentials" {"message":"Invalid credentials."}
      */
     public function login(LoginRequest $request): JsonResponse
     {
@@ -58,8 +76,13 @@ class AuthController extends Controller
     }
 
     /**
-     * Create a temporary guest user with a generated name and no credentials.
-     * Useful for anonymous prayer participation before account creation.
+     * Guest Login
+     *
+     * Create a temporary anonymous user account (e.g. for joining a session without registering).
+     * Returns a token that can be upgraded to a full account later.
+     *
+     * @unauthenticated
+     * @response 201 scenario="Success" {"user":{"id":5,"name":"Guest_XKDPQR","email":null,"level":"Disciple","streak":0},"token":"2|xyz789"}
      */
     public function guestLogin(): JsonResponse
     {
