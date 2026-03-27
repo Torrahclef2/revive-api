@@ -21,6 +21,7 @@ class User extends Authenticatable
         'avatar',
         'headline',
         'is_verified',
+        'is_admin',
         'messaging_privacy',
         'streak',
         'level',
@@ -36,6 +37,7 @@ class User extends Authenticatable
         return [
             'password'    => 'hashed',
             'is_verified' => 'boolean',
+            'is_admin'    => 'boolean',
         ];
     }
 
