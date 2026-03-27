@@ -6,7 +6,6 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -19,6 +18,7 @@ class AuthController extends Controller
     {
         $user = User::create([
             'name'     => $request->name,
+            'username' => $request->username,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -33,15 +33,22 @@ class AuthController extends Controller
 
     /**
      * Authenticate an existing user and return an auth token.
+     * Accepts either an email address or a username in the "login" field.
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        if (! Auth::attempt($request->only('email', 'password'))) {
+        $login    = $request->input('login');
+        $password = $request->input('password');
+
+        // Determine whether the login value looks like an email
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $user = User::where($field, $login)->first();
+
+        if (! $user || ! Hash::check($password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
 
-        /** @var User $user */
-        $user  = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
