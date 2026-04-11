@@ -222,4 +222,60 @@ class User extends Authenticatable
     {
         return $this->hasMany(SessionThreadPost::class, 'author_id');
     }
+
+    /**
+     * Get streak logs for this user.
+     */
+    public function streakLogs()
+    {
+        return $this->hasMany(StreakLog::class);
+    }
+
+    /**
+     * Get circle suggestions made by this user.
+     */
+    public function circleSuggestionsMadeByMe()
+    {
+        return $this->hasMany(CircleSuggestion::class, 'from_user_id');
+    }
+
+    /**
+     * Get circle suggestions received by this user.
+     */
+    public function circleSuggestionsReceivedByMe()
+    {
+        return $this->hasMany(CircleSuggestion::class, 'to_user_id');
+    }
+
+    /**
+     * Get session reports filed by this user.
+     */
+    public function reportsIFiled()
+    {
+        return $this->hasMany(SessionReport::class, 'reporter_id');
+    }
+
+    /**
+     * Get session reports filed about this user.
+     */
+    public function reportsAboutMe()
+    {
+        return $this->hasMany(SessionReport::class, 'reported_user_id');
+    }
+
+    /**
+     * Get strikes against this user.
+     */
+    public function strikes()
+    {
+        return $this->hasMany(UserStrike::class);
+    }
+
+    /**
+     * Get strikes filed by this user (as moderator).
+     */
+    public function strikesFiled()
+    {
+        return $this->hasMany(UserStrike::class, 'reported_by');
+    }
 }
