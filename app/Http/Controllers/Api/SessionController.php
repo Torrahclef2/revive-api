@@ -30,35 +30,44 @@ class SessionController extends ApiController
         $perPage = $request->get('per_page', 15);
         $country = $request->get('location_country', $user->location_country);
 
-        // Build discoverable sessions query
+        // Build discoverable sessions query with eager loading
         $sessions = PrayerSession::query()
-            // Status: not ended
             ->where('status', '!=', 'ended')
-            // Visibility: open or anonymous
             ->whereIn('visibility', ['open', 'anonymous'])
-            // Location: match user's country
             ->where('location_country', $country)
-            // Gender: any or match user's gender
             ->byGender($user->gender)
-            // Not full: exclude sessions at capacity
             ->notFull()
-            // Load host for open sessions
-            ->with('host')
+            ->with([
+                'host' => function ($q) {
+                    $q->select(['id', 'username', 'display_name', 'avatar_url', 'headline', 'level']);
+                },
+            ])
+            ->select([
+                'id', 'host_id', 'title', 'description', 'purpose',
+                'visibility', 'status', 'max_members', 'scheduled_at',
+                'duration_minutes', 'created_at'
+            ])
             ->orderByDesc('scheduled_at')
             ->paginate($perPage);
 
         // Transform to appropriate resource based on visibility
-        $data = $sessions->map(function ($session) {
+        $transformed = $sessions->map(function ($session) {
             return $session->visibility === 'anonymous'
                 ? new AnonymousSessionResource($session)
                 : new SessionResource($session);
         });
 
-        return $this->paginated(
-            $data,
-            'Discoverable sessions retrieved',
-            $sessions
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Discoverable sessions retrieved',
+            'data' => $transformed,
+            'meta' => [
+                'current_page' => $sessions->currentPage(),
+                'per_page' => $sessions->perPage(),
+                'total' => $sessions->total(),
+                'last_page' => $sessions->lastPage(),
+            ],
+        ]);
     }
 
     /**
@@ -124,8 +133,15 @@ class SessionController extends ApiController
             return $this->notFound('Session not found or has ended');
         }
 
-        // Load relations
-        $session->load('host', 'members');
+        // Eager load all relations with specific columns to avoid N+1
+        $session->load([
+            'host' => function ($q) {
+                $q->select(['id', 'username', 'display_name', 'avatar_url', 'headline', 'level']);
+            },
+            'members' => function ($q) {
+                $q->select(['id', 'session_id', 'user_id', 'status', 'joined_at']);
+            },
+        ]);
 
         // Choose resource based on visibility
         $resource = $session->visibility === 'anonymous'

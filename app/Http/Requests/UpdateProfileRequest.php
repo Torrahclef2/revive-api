@@ -37,7 +37,18 @@ class UpdateProfileRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'gender.in' => 'Gender must be one of: male, female, other',
+            'display_name.string' => 'Display name must be text',
+            'display_name.max' => 'Display name cannot exceed 255 characters',
+            'headline.string' => 'Headline must be text',
+            'headline.max' => 'Headline cannot exceed 500 characters',
+            'denomination.string' => 'Denomination must be text',
+            'denomination.max' => 'Denomination cannot exceed 255 characters',
+            'location_city.string' => 'City name must be text',
+            'location_city.max' => 'City name cannot exceed 100 characters',
+            'location_country.string' => 'Country name must be text',
+            'location_country.max' => 'Country name cannot exceed 100 characters',
+            'gender.string' => 'Gender must be text',
+            'gender.in' => 'Please select male, female, or other for gender',
         ];
     }
 }

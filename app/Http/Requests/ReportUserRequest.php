@@ -35,13 +35,16 @@ class ReportUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'reported_user_id.required' => 'User ID is required',
-            'reported_user_id.uuid' => 'User ID must be a valid UUID',
-            'reported_user_id.exists' => 'The reported user does not exist',
-            'reason.required' => 'Please provide a reason for the report',
-            'reason.min' => 'Reason must be at least 10 characters',
-            'stage.required' => 'Stage is required',
-            'stage.in' => 'Stage must be either "during" or "after"',
+            'reported_user_id.required' => 'Please select a user to report',
+            'reported_user_id.uuid' => 'The user ID appears to be invalid',
+            'reported_user_id.exists' => 'We couldn\'t find that user',
+            'reason.required' => 'Please tell us what happened',
+            'reason.string' => 'Your reason must be text',
+            'reason.min' => 'Please provide at least 10 characters describing the issue',
+            'reason.max' => 'Your report cannot exceed 500 characters',
+            'stage.required' => 'Please select when this happened',
+            'stage.string' => 'Stage must be text',
+            'stage.in' => 'Stage must be either during or after the session',
         ];
     }
 }

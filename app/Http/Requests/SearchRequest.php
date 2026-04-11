@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class RespondToCircleSuggestionRequest extends FormRequest
+class SearchRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,8 @@ class RespondToCircleSuggestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'action' => ['required', 'string', Rule::in(['accept', 'dismiss'])],
+            'q' => ['required', 'string', 'min:2', 'max:255'],
+            'type' => ['required', 'string', Rule::in(['users', 'groups', 'sessions'])],
         ];
     }
 
@@ -33,9 +34,11 @@ class RespondToCircleSuggestionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'action.required' => 'Please choose to accept or dismiss this suggestion',
-            'action.string' => 'Action must be text',
-            'action.in' => 'Please select either accept or dismiss',
+            'q.required' => 'Please enter a search term',
+            'q.min' => 'Your search term must be at least 2 characters long',
+            'q.max' => 'Your search term cannot exceed 255 characters',
+            'type.required' => 'Please specify what you\'d like to search for',
+            'type.in' => 'You can search for users, groups, or sessions',
         ];
     }
 }

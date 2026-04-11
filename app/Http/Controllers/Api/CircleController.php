@@ -29,13 +29,21 @@ class CircleController extends ApiController
     {
         $user = $request->user();
 
-        // Get both sent and received accepted circles
+        // Get both sent and received accepted circles with eager loading
         $circles = Circle::where(function ($query) use ($user) {
             $query->where('requester_id', $user->id)
                   ->orWhere('receiver_id', $user->id);
         })
         ->where('status', 'accepted')
-        ->with(['requester', 'receiver'])
+        ->with([
+            'requester' => function ($q) {
+                $q->select(['id', 'username', 'display_name', 'avatar_url', 'headline', 'level']);
+            },
+            'receiver' => function ($q) {
+                $q->select(['id', 'username', 'display_name', 'avatar_url', 'headline', 'level']);
+            },
+        ])
+        ->select(['id', 'requester_id', 'receiver_id', 'status', 'created_at'])
         ->get();
 
         // Extract the other user from each circle

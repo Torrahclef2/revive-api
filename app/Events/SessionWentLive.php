@@ -3,10 +3,8 @@
 namespace App\Events;
 
 use App\Models\PrayerSession;
-use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithBroadcasting;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -17,13 +15,18 @@ class SessionWentLive implements ShouldBroadcast
     use Dispatchable, InteractsWithBroadcasting, SerializesModels;
 
     public PrayerSession $session;
+    public string $userId;
 
     /**
      * Create a new event instance.
+     * 
+     * This event is dispatched for each admitted member of the session.
+     * The calling code should dispatch this event once per member.
      */
-    public function __construct(PrayerSession $session)
+    public function __construct(PrayerSession $session, string $userId)
     {
         $this->session = $session;
+        $this->userId = $userId;
     }
 
     /**
@@ -34,7 +37,7 @@ class SessionWentLive implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('session.' . $this->session->id),
+            new PrivateChannel('user.' . $this->userId),
         ];
     }
 
@@ -48,9 +51,8 @@ class SessionWentLive implements ShouldBroadcast
         return [
             'session_id' => $this->session->id,
             'title' => $this->session->title,
+            'agora_channel_name' => $this->session->agora_channel_name,
             'message' => 'Prayer session is now live',
-            'agora_channel' => $this->session->agora_channel_name,
-            'live_started_at' => $this->session->live_started_at,
         ];
     }
 }

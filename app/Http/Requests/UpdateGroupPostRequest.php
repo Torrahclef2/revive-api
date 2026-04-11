@@ -3,16 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class RespondToCircleSuggestionRequest extends FormRequest
+class UpdateGroupPostRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return true; // Authorization is handled in the controller
     }
 
     /**
@@ -23,7 +22,7 @@ class RespondToCircleSuggestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'action' => ['required', 'string', Rule::in(['accept', 'dismiss'])],
+            'content' => ['required', 'string', 'min:1', 'max:1000'],
         ];
     }
 
@@ -33,9 +32,10 @@ class RespondToCircleSuggestionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'action.required' => 'Please choose to accept or dismiss this suggestion',
-            'action.string' => 'Action must be text',
-            'action.in' => 'Please select either accept or dismiss',
+            'content.required' => 'Please write something to post',
+            'content.string' => 'Post content must be text',
+            'content.min' => 'Your post cannot be empty',
+            'content.max' => 'Your post cannot exceed 1000 characters',
         ];
     }
 }

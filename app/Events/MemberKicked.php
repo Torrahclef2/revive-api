@@ -48,6 +48,7 @@ class MemberKicked implements ShouldBroadcast
     {
         return [
             'session_id' => $this->session->id,
+            'message' => 'You have been removed from the session',
             'session_title' => $this->session->title,
             'message' => 'You have been kicked from the session',
             'action' => 'disconnect_agora',

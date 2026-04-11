@@ -33,8 +33,9 @@ class RespondToCircleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'action.required' => 'Action is required',
-            'action.in' => 'Action must be either "accept" or "reject"',
+            'action.required' => 'Please choose to accept or reject this circle invitation',
+            'action.string' => 'Action must be text',
+            'action.in' => 'Please select either accept or reject',
         ];
     }
 }

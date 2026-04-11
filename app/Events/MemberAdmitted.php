@@ -49,8 +49,7 @@ class MemberAdmitted implements ShouldBroadcast
         return [
             'session_id' => $this->session->id,
             'session_title' => $this->session->title,
-            'agora_channel' => $this->session->agora_channel_name,
-            'message' => 'You have been admitted to the session',
+            'message' => 'You have been admitted',
         ];
     }
 }

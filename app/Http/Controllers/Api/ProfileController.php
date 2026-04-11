@@ -130,19 +130,36 @@ class ProfileController extends ApiController
         $user = $request->user();
         $perPage = $request->get('per_page', 15);
 
-        // Get all sessions user is associated with (hosted or joined)
+        // Get all sessions user is associated with (hosted or joined) with eager loading
         $sessions = $user->hostedPrayerSessions()
             ->union(
                 $user->prayerSessions()
             )
-            ->with('members')
+            ->with([
+                'host' => function ($q) {
+                    $q->select(['id', 'username', 'display_name', 'avatar_url', 'level']);
+                },
+                'members' => function ($q) {
+                    $q->select(['id', 'session_id', 'user_id', 'status', 'joined_at']);
+                },
+            ])
+            ->select([
+                'id', 'host_id', 'title', 'description',
+                'status', 'visibility', 'max_members', 'scheduled_at', 'created_at'
+            ])
             ->orderByDesc('created_at')
             ->paginate($perPage);
 
-        return $this->paginated(
-            SessionHistoryResource::collection($sessions),
-            'Session history retrieved',
-            $sessions
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Session history retrieved',
+            'data' => SessionHistoryResource::collection($sessions),
+            'meta' => [
+                'current_page' => $sessions->currentPage(),
+                'per_page' => $sessions->perPage(),
+                'total' => $sessions->total(),
+                'last_page' => $sessions->lastPage(),
+            ],
+        ]);
     }
 }

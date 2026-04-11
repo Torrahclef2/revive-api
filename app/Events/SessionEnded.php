@@ -32,7 +32,7 @@ class SessionEnded implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('session.' . $this->session->id),
+            new PrivateChannel('session.' . $this->session->id),
         ];
     }
 
@@ -45,9 +45,7 @@ class SessionEnded implements ShouldBroadcast
     {
         return [
             'session_id' => $this->session->id,
-            'title' => $this->session->title,
-            'message' => 'Prayer session has ended',
-            'live_ended_at' => $this->session->live_ended_at,
+            'message' => 'Session has ended',
         ];
     }
 }

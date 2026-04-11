@@ -43,10 +43,29 @@ class CreateSessionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required' => 'Session title is required',
-            'max_members.min' => 'Maximum members must be at least 2',
-            'scheduled_at.after' => 'Session must be scheduled for the future',
-            'duration_minutes.min' => 'Duration must be at least 10 minutes',
+            'title.required' => 'Please give your session a name',
+            'title.min' => 'Session name must be at least 3 characters long',
+            'title.max' => 'Session name cannot exceed 255 characters',
+            'description.max' => 'Description cannot exceed 1000 characters',
+            'purpose.required' => 'Please select a purpose for this session',
+            'purpose.in' => 'Purpose must be either prayer or study',
+            'template.required' => 'Please choose a session template',
+            'template.in' => 'That template is not available',
+            'visibility.required' => 'Please select who can see this session',
+            'visibility.in' => 'Visibility must be circle only, open, or anonymous',
+            'gender_preference.required' => 'Please select a gender preference',
+            'gender_preference.in' => 'Gender preference must be any, male, or female',
+            'location_city.max' => 'City name cannot exceed 100 characters',
+            'location_country.max' => 'Country name cannot exceed 100 characters',
+            'max_members.required' => 'Please specify the maximum number of members',
+            'max_members.min' => 'Session must allow at least 2 members',
+            'max_members.max' => 'Session cannot have more than 255 members',
+            'scheduled_at.required' => 'Please select when you\'d like to start the session',
+            'scheduled_at.date_format' => 'Please use the correct date and time format (YYYY-MM-DD HH:MM:SS)',
+            'scheduled_at.after' => 'Please schedule the session for a future time',
+            'duration_minutes.required' => 'Please specify how long the session will be',
+            'duration_minutes.min' => 'Sessions must be at least 10 minutes long',
+            'duration_minutes.max' => 'Sessions cannot exceed 8 hours',
         ];
     }
 

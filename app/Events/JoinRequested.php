@@ -38,27 +38,34 @@ class JoinRequested implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('session-host.' . $this->session->host_id),
+            new PrivateChannel('session.' . $this->session->id),
         ];
     }
 
     /**
      * Get the data to broadcast.
      *
+     * Anonymizes user info if session is anonymous.
+     *
      * @return array<string, mixed>
      */
     public function broadcastWith(): array
     {
+        // Check if session is anonymous (typically when visibility is 'anonymous')
+        $isAnonymous = $this->session->visibility === 'anonymous';
+
         return [
             'session_id' => $this->session->id,
             'request_id' => $this->joinRequest->id,
             'requester' => [
                 'id' => $this->requester->id,
-                'username' => $this->requester->username,
-                'display_name' => $this->requester->display_name,
-                'avatar_url' => $this->requester->avatar_url,
+                'username' => $isAnonymous ? 'Anonymous User' : $this->requester->username,
+                'display_name' => $isAnonymous ? 'Anonymous' : $this->requester->display_name,
+                'avatar_url' => $isAnonymous ? null : $this->requester->avatar_url,
             ],
-            'message' => "{$this->requester->display_name} requested to join your session",
+            'message' => $isAnonymous 
+                ? 'An anonymous user requested to join your session'
+                : "{$this->requester->display_name} requested to join your session",
         ];
     }
 }

@@ -39,9 +39,29 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'username.unique' => 'This username is already taken.',
-            'email.unique' => 'This email is already registered.',
-            'password' => 'Password must be at least 8 characters with uppercase, lowercase, numbers and symbols.',
+            'name.required' => 'Please enter your name',
+            'name.string' => 'Name must be text',
+            'name.max' => 'Name cannot exceed 255 characters',
+            'username.required' => 'Please choose a username',
+            'username.string' => 'Username must be text',
+            'username.min' => 'Username must be at least 3 characters',
+            'username.max' => 'Username cannot exceed 255 characters',
+            'username.unique' => 'Sorry, that username is already taken. Try another!',
+            'email.required' => 'Please enter your email address',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'That email is already registered. Try logging in instead!',
+            'password.required' => 'Please enter a password',
+            'password.min' => 'Password must be at least 8 characters',
+            'password.mixed' => 'Password must include uppercase and lowercase letters',
+            'password.numbers' => 'Password must include at least one number',
+            'password.symbols' => 'Password must include at least one special character (!@#$%...)',
+            'gender.required' => 'Please select your gender',
+            'gender.string' => 'Gender must be text',
+            'gender.in' => 'Gender must be male, female, or other',
+            'headline.string' => 'Headline must be text',
+            'headline.max' => 'Headline cannot exceed 500 characters',
+            'denomination.string' => 'Denomination must be text',
+            'denomination.max' => 'Denomination cannot exceed 255 characters',
         ];
     }
 }

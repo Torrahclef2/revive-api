@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class RespondToCircleSuggestionRequest extends FormRequest
+class ReactToPostRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class RespondToCircleSuggestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'action' => ['required', 'string', Rule::in(['accept', 'dismiss'])],
+            'reaction' => ['required', 'string', Rule::in(['amen', 'heart', 'pray'])],
         ];
     }
 
@@ -33,9 +33,9 @@ class RespondToCircleSuggestionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'action.required' => 'Please choose to accept or dismiss this suggestion',
-            'action.string' => 'Action must be text',
-            'action.in' => 'Please select either accept or dismiss',
+            'reaction.required' => 'Please select a reaction',
+            'reaction.string' => 'Reaction must be text',
+            'reaction.in' => 'That reaction is not available. Please choose from amen, heart, or pray',
         ];
     }
 }
