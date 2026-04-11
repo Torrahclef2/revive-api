@@ -25,11 +25,34 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            // Authentication
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'username' => fake()->unique()->userName(),
             'remember_token' => Str::random(10),
+
+            // Profile
+            'display_name' => fake()->name(),
+            'avatar_url' => fake()->imageUrl(),
+            'headline' => fake()->sentence(3),
+
+            // Spiritual info
+            'denomination' => fake()->randomElement(['Catholic', 'Protestant', 'Orthodox', 'Evangelical', 'Pentecostal', null]),
+            'gender' => fake()->randomElement(['male', 'female', 'prefer_not_to_say']),
+            'level' => fake()->randomElement(['seeker', 'rising_disciple', 'follower', 'faithful', 'leader']),
+
+            // Location
+            'location_city' => fake()->city(),
+            'location_country' => fake()->countryCode(),
+
+            // Engagement
+            'xp_points' => fake()->numberBetween(0, 10000),
+            'streak_count' => fake()->numberBetween(0, 365),
+            'last_active_date' => fake()->dateTimeBetween('-30 days')->format('Y-m-d'),
+
+            // Status
+            'is_active' => true,
+            'email_verified_at' => now(),
         ];
     }
 
@@ -40,6 +63,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
         ]);
     }
 }
