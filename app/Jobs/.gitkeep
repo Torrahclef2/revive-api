@@ -1,0 +1,2 @@
+# Jobs
+Place queued job classes here for background tasks (SendNotification, ProcessImage, etc.).
