@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\CircleController;
 use App\Http\Controllers\Api\SessionController;
+use App\Http\Controllers\Api\SessionMemberController;
 
 Route::get('/health', function () {
     return response()->json(['status' => 'ok', 'message' => 'Revive API is running']);
@@ -46,6 +47,14 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
     Route::post('/sessions/{session}/go-live', [SessionController::class, 'goLive'])->name('sessions.goLive');
     Route::post('/sessions/{session}/end', [SessionController::class, 'end'])->name('sessions.end');
+
+    // Session Member routes (protected)
+    Route::post('/sessions/{session}/request', [SessionMemberController::class, 'request'])->name('sessions.members.request');
+    Route::post('/sessions/{session}/members/{member}/admit', [SessionMemberController::class, 'admit'])->name('sessions.members.admit');
+    Route::post('/sessions/{session}/members/{member}/reject', [SessionMemberController::class, 'reject'])->name('sessions.members.reject');
+    Route::post('/sessions/{session}/members/{member}/kick', [SessionMemberController::class, 'kick'])->name('sessions.members.kick');
+    Route::post('/sessions/{session}/leave', [SessionMemberController::class, 'leave'])->name('sessions.members.leave');
+    Route::post('/sessions/{session}/report', [SessionMemberController::class, 'report'])->name('sessions.report');
 
     // Add protected routes here
 });
