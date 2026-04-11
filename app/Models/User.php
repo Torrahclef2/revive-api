@@ -128,4 +128,51 @@ class User extends Authenticatable
                   ->orWhere('receiver_id', $this->id);
         })->where('status', 'pending');
     }
+
+    /**
+     * Get groups created by this user.
+     */
+    public function groupsCreated()
+    {
+        return $this->hasMany(Group::class, 'creator_id');
+    }
+
+    /**
+     * Get groups this user is a member of.
+     */
+    public function groupMemberships()
+    {
+        return $this->hasMany(GroupMember::class);
+    }
+
+    /**
+     * Get groups this user is an admin of.
+     */
+    public function groupsAdmined()
+    {
+        return $this->hasManyThrough(
+            Group::class,
+            GroupMember::class,
+            'user_id',
+            'id',
+            'id',
+            'group_id'
+        )->where('group_members.role', 'admin');
+    }
+
+    /**
+     * Get posts created by this user in groups.
+     */
+    public function groupPosts()
+    {
+        return $this->hasMany(GroupPost::class, 'author_id');
+    }
+
+    /**
+     * Get reactions by this user.
+     */
+    public function groupPostReactions()
+    {
+        return $this->hasMany(GroupPostReaction::class);
+    }
 }
