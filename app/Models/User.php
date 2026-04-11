@@ -175,4 +175,51 @@ class User extends Authenticatable
     {
         return $this->hasMany(GroupPostReaction::class);
     }
+
+    /**
+     * Get prayer sessions hosted by this user.
+     */
+    public function hostedPrayerSessions()
+    {
+        return $this->hasMany(PrayerSession::class, 'host_id');
+    }
+
+    /**
+     * Get prayer session memberships for this user.
+     */
+    public function prayerSessionMemberships()
+    {
+        return $this->hasMany(SessionMember::class);
+    }
+
+    /**
+     * Get prayer sessions this user is admitted to.
+     */
+    public function prayerSessions()
+    {
+        return $this->hasManyThrough(
+            PrayerSession::class,
+            SessionMember::class,
+            'user_id',
+            'id',
+            'id',
+            'session_id'
+        )->where('session_members.status', 'admitted');
+    }
+
+    /**
+     * Get live prayer sessions this user is in.
+     */
+    public function livePrayerSessions()
+    {
+        return $this->prayerSessions()->where('status', 'live');
+    }
+
+    /**
+     * Get session thread posts by this user.
+     */
+    public function sessionThreadPosts()
+    {
+        return $this->hasMany(SessionThreadPost::class, 'author_id');
+    }
 }
