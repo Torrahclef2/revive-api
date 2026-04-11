@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasUuids;
+    use HasFactory, Notifiable, HasUuids, HasApiTokens;
 
     /**
      * The primary key type.
@@ -277,5 +278,68 @@ class User extends Authenticatable
     public function strikesFiled()
     {
         return $this->hasMany(UserStrike::class, 'reported_by');
+    }
+
+    /**
+     * Get all circles this user is connected to (both sent and received accepted connections).
+     */
+    public function circles()
+    {
+        return $this->activeCircles();
+    }
+
+    /**
+     * Check if this user is in a circle connection with another user.
+     */
+    public function isInCircleWith(User $user): bool
+    {
+        return Circle::where(function ($query) use ($user) {
+            $query->where('requester_id', $this->id)
+                  ->where('receiver_id', $user->id);
+        })->orWhere(function ($query) use ($user) {
+            $query->where('requester_id', $user->id)
+                  ->where('receiver_id', $this->id);
+        })->where('status', 'accepted')
+        ->exists();
+    }
+
+    /**
+     * Get the XP threshold for the next user level.
+     * 
+     * XP Thresholds:
+     * - seeker: 0
+     * - rising_disciple: 500
+     * - follower: 1500
+     * - faithful: 3000
+     * - leader: 6000
+     */
+    public function getXpForNextLevel(): int
+    {
+        $thresholds = [
+            'seeker' => 0,
+            'rising_disciple' => 500,
+            'follower' => 1500,
+            'faithful' => 3000,
+            'leader' => 6000,
+        ];
+
+        $currentLevel = $this->level ?? 'seeker';
+        $levels = array_keys($thresholds);
+        $currentIndex = array_search($currentLevel, $levels);
+
+        if ($currentIndex === false || $currentIndex === count($levels) - 1) {
+            return $thresholds['leader']; // Max level
+        }
+
+        $nextLevel = $levels[$currentIndex + 1];
+        return $thresholds[$nextLevel];
+    }
+
+    /**
+     * Scope: Get active users only.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }
