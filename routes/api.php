@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\CircleController;
+use App\Http\Controllers\Api\SessionController;
 
 Route::get('/health', function () {
     return response()->json(['status' => 'ok', 'message' => 'Revive API is running']);
@@ -38,6 +39,13 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('/circles/{circle}', [CircleController::class, 'destroy'])->name('circles.destroy');
     Route::get('/circles/suggestions', [CircleController::class, 'suggestions'])->name('circles.suggestions');
     Route::post('/circles/suggestions/{suggestion}/respond', [CircleController::class, 'respondToSuggestion'])->name('circles.respondToSuggestion');
+
+    // Prayer Session routes (protected)
+    Route::get('/sessions/discovery', [SessionController::class, 'discovery'])->name('sessions.discovery');
+    Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
+    Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
+    Route::post('/sessions/{session}/go-live', [SessionController::class, 'goLive'])->name('sessions.goLive');
+    Route::post('/sessions/{session}/end', [SessionController::class, 'end'])->name('sessions.end');
 
     // Add protected routes here
 });
