@@ -90,4 +90,42 @@ class User extends Authenticatable
             'last_active_date' => 'date',
         ];
     }
+
+    /**
+     * Get circles initiated by this user.
+     */
+    public function circlesRequested()
+    {
+        return $this->hasMany(Circle::class, 'requester_id');
+    }
+
+    /**
+     * Get circles received by this user.
+     */
+    public function circlesReceived()
+    {
+        return $this->hasMany(Circle::class, 'receiver_id');
+    }
+
+    /**
+     * Get all active circles for this user (both requested and received).
+     */
+    public function activeCircles()
+    {
+        return Circle::where(function ($query) {
+            $query->where('requester_id', $this->id)
+                  ->orWhere('receiver_id', $this->id);
+        })->where('status', 'accepted');
+    }
+
+    /**
+     * Get all pending circles for this user (both requested and received).
+     */
+    public function pendingCircles()
+    {
+        return Circle::where(function ($query) {
+            $query->where('requester_id', $this->id)
+                  ->orWhere('receiver_id', $this->id);
+        })->where('status', 'pending');
+    }
 }
