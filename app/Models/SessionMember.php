@@ -173,6 +173,14 @@ class SessionMember extends Model
     }
 
     /**
+     * Scope to get requested members (alias for scopePending).
+     */
+    public function scopeRequested($query)
+    {
+        return $query->where('status', 'requested');
+    }
+
+    /**
      * Scope to get rejected members.
      */
     public function scopeRejected($query)

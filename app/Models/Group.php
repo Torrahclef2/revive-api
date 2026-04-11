@@ -103,10 +103,10 @@ class Group extends Model
     /**
      * Check if a user is an admin of this group.
      */
-    public function isAdmin($userId): bool
+    public function isAdmin(User $user): bool
     {
         return $this->members()
-            ->where('user_id', $userId)
+            ->where('user_id', $user->id)
             ->where('role', 'admin')
             ->exists();
     }

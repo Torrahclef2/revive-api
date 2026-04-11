@@ -120,4 +120,12 @@ class Circle extends Model
     {
         return $this->status === 'rejected';
     }
+
+    /**
+     * Check if this is a mutual/accepted connection.
+     */
+    public function isMutual(): bool
+    {
+        return $this->status === 'accepted';
+    }
 }
